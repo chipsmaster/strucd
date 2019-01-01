@@ -36,23 +36,31 @@ class StrucDHandler
     }
 
     /**
-     * Merges $input into $output and returns output. Behaviour depends the object's options.
-     * Accepts only arrays (null/empty arguments converted to empty arrays)
+     * Merges $input into $output and returns output. Behaviour depends on the object's options.
+     * Accepts only arrays or null for output and input (scalar empty values normalized to null).
      *
      * @param array|null $output
      * @param array|null $input
-     * @return array
+     * @return array|null
      */
     public function merge($output = null, $input = null)
     {
-        if (!$output) {
-            $output = array();
+        if (is_scalar($output) && !$output) {
+            $output = null;
         }
-        if (!$input) {
-            $input = array();
+        if (is_scalar($input) && !$input) {
+            $input = null;
         }
-        if (!is_array($output) || !is_array($input)) {
-            throw new \InvalidArgumentException("Accepts only arrays");
+        if ((!is_null($output) && !is_array($output))
+            || (!is_null($input) && !is_array($input))
+        ) {
+            throw new \InvalidArgumentException("Accepts only arrays or null");
+        }
+        if (!is_array($output)) {
+            return $input;
+        }
+        if (!is_array($input)) {
+            return $output;
         }
         return $this->mergeInternal($output, $input);
     }
